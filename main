@@ -1,0 +1,140 @@
+
+
+
+char val; // variable to receive data from the serial port
+int timesTosend=1;
+int count=0;
+char phone_no[14]="123456789";  //phone number
+
+
+
+
+void setup()
+{
+pinMode(9,OUTPUT);
+pinMode(10,OUTPUT);
+pinMode(11,OUTPUT);
+pinMode(12,OUTPUT);
+Serial.begin(9600);
+delay(2000);
+Serial.println("AT+CMGF=1"); //set GSM to text mode
+delay(200);
+
+}
+
+
+ void loop() 
+ {
+  if( Serial.available() ) // if data is available to read
+  {
+  ;
+  }
+  val = Serial.read(); // read serial and store it in 'val'
+  if(val == 0x38)  //Motor Forward
+  {
+    forward();
+  }
+  
+  if(val == 0x32) //Motor Reverse
+  {
+   reverse(); 
+  }
+  
+  if(val == 0x36) //Motor Right
+  {
+    right();
+  }
+  
+  if(val== 0x34) //Motor Left
+  {
+    left();
+  }
+  
+  if(val == 0x30 ) //Motor Stop
+  {
+    stops(); 
+  }
+  
+  if(val == 0x44) //Activate GSM
+  {
+   gsm(); 
+    
+  }
+ }
+  
+void gsm()
+{
+    while(count<timesTosend)
+{
+delay(1500);
+Serial.print("AT+CMGS=\"");
+Serial.print(phone_no);
+Serial.println("\"");
+
+while (Serial.read()!='>');
+{
+Serial.print("Test Message from Arduino GSM….HELLO..!!!");  //SMS body
+delay(500);
+Serial.write(0x1A);  // sends ctrl+z end of message
+    Serial.write(0x0D);  // Carriage Return in Hex
+Serial.write(0x0A);  // Line feed in Hex
+//The 0D0A pair of characters is the signal for the end of a line and beginning of another.
+delay(5000);
+}
+count++;
+}
+  } 
+
+void forward()
+{
+   Serial.println("clockwise");
+  digitalWrite(9,HIGH);
+  digitalWrite(10,LOW);
+  delay(50);
+  digitalWrite(11,HIGH);
+  digitalWrite(12,LOW);
+  
+}
+
+void reverse()
+{
+  Serial.println("counterclockwise");
+  digitalWrite(9,LOW);
+  digitalWrite(10,HIGH);
+  delay(50);
+  digitalWrite(11,LOW);
+  digitalWrite(12,HIGH);
+  
+}
+
+void right()
+{
+  Serial.println("right");
+  digitalWrite(9,LOW);
+  digitalWrite(10,LOW);
+  delay(50);
+  digitalWrite(11,HIGH);
+  digitalWrite(12,LOW);
+    
+}
+
+void left()
+{
+  Serial.println("left");
+  digitalWrite(9,HIGH);
+  digitalWrite(10,LOW);
+  delay(50);
+  digitalWrite(11,LOW);
+  digitalWrite(12,LOW);
+  
+}
+
+void stops()
+{
+Serial.println("stop");
+digitalWrite(9,LOW);
+  digitalWrite(10,LOW);
+  delay(50);
+  digitalWrite(11,LOW);
+  digitalWrite(12,LOW);
+}
